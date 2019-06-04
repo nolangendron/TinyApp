@@ -10,12 +10,12 @@
 </head>
 <body style="font-size:20px; padding:50px;">
   <% include ./partials/_header %>
+  <a href="#">Create New TinyUrl</a>
   <ul>
     <% for(key in urls) {%>
-    <li><%= urls[key] %></li>
+    <li><strong><%= key %>:</strong> <%= urls[key] %></li>
     <% } %>
   </ul>
-  <a href="#">Shorten the URL</a>
 </body>
 </html>
 
