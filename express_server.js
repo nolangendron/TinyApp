@@ -54,6 +54,14 @@ app.post("/urls", (req, res, callback) => {// Log the POST request body to the c
   res.redirect(`/urls/${randomString}`);         // Respond with 'Ok' (we will replace this)
 });
 
+app.post("/urls/:shortURL/delete", (req, res, callback) => {
+  const id = req.params.shortURL;
+  console.log(id);
+  delete urlDatabase[id];
+  console.log(urlDatabase);
+  res.redirect("/urls")
+})
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
