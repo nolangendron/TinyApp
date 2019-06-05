@@ -10,13 +10,19 @@
 </head>
 <body style="font-size:20px; padding:50px;">
   <% include ./partials/_header %>
-  <a href="#">Create New TinyUrl</a>
-  <ul>
-    <% for(key in urls) {%>
-    <form method="POST" action="/urls/<%= key %>/delete">
-      <li style="margin-bottom: 10px;"><strong><%= key %>:</strong> <%= urls[key] %><button type="submit" value="DESTROY" class="btn btn-outline-secondary" style="margin-left: 30px;">Delete 🗑</button></li>
-    </form>
-    <% } %>
+  <a href="/urls/new">Create New TinyUrl</a>
+    <table style="width: 80%;">
+      <% for(key in urls) {%>
+        <tr>
+          <form method="POST" action="/urls/<%= key %>/delete">
+            <td><strong><%= key %>:</strong></td>
+            <td><%= urls[key] %></td>
+            <td><a href="/urls/<%= key %>">Edit</a></td>
+            <td><button type="submit" value="DESTROY" class="btn btn-primary">Delete 🗑</button></td>
+          </form>
+        <tr>
+      <% } %>
+    </table>
   </ul>
 </body>
 </html>
