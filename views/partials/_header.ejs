@@ -11,6 +11,18 @@
 <body style="font-size:20px; padding:50px;">
   <header>
     <h1>TinyApp</h1>
+      <% if (username) { %>
+          <form class="form-inline" name="username" action="/logout" method="post" accept-charset="utf-8">
+            <h3 style="padding-left: 20px;">Logged In As: <%= username %></h3>
+            <button type="submit" class="btn btn-primary">Logout</button>
+          </form>
+    <% } else { %>
+          <form class="form-inline" action="/login" method="post" accept-charset="utf-8">
+            <label for="username">Username:</label>
+            <input class="form-control" type="text" name="username" placeholder="username">
+            <button type="submit" class="btn btn-primary">Sign In</button>
+          </form>
+      <% } %>
   </header>
 </body>
 </html>
