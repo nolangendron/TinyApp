@@ -10,19 +10,22 @@
 </head>
 <body style="font-size:20px; padding:50px;">
   <header>
-    <h1>TinyApp</h1>
-      <% if (username) { %>
+    <nav class="navbar navbar-light bg-success">
+      <a class="navbar-brand" href="/urls">TinyApp</a>
+            <% if (username) { %>
           <form class="form-inline" name="username" action="/logout" method="post" accept-charset="utf-8">
-            <h3 style="padding-left: 20px;">Logged In As: <%= username %></h3>
-            <button type="submit" class="btn btn-primary">Logout</button>
+            <label for="username">Logged In As: <%= username %></label>
+            <button type="submit" class="btn btn-secondary">Logout</button>
           </form>
     <% } else { %>
           <form class="form-inline" action="/login" method="post" accept-charset="utf-8">
             <label for="username">Username:</label>
-            <input class="form-control" type="text" name="username" placeholder="username">
-            <button type="submit" class="btn btn-primary">Sign In</button>
+            <input class="form-control mr-sm-2" type="text" name="username" placeholder="username">
+            <button type="submit" class="btn btn-secondary">Sign In</button>
           </form>
       <% } %>
+  </nav>
+
   </header>
 </body>
 </html>
