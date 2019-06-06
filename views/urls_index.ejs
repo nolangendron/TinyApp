@@ -8,10 +8,13 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>TinyApp</title>
 </head>
-<body style="font-size:20px; padding:50px;">
+<body style="font-size:20px;">
+
   <% include ./partials/_header %>
-  <a href="/urls/new">Create New TinyUrl</a>
-    <table style="width: 100%;">
+  <div style="max-width: 90%; margin: auto;">
+    <a href="/urls/new">Create New TinyUrl</a>
+
+    <table style="width: 100%; margin: auto;">
       <% for(key in urls) {%>
         <tr>
           <form method="POST" action="/urls/<%= key %>/delete">
@@ -23,7 +26,8 @@
         <tr>
       <% } %>
     </table>
-  </ul>
+
+  </div>
 </body>
 </html>
 

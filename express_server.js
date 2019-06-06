@@ -12,7 +12,13 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 // store User data: email and password
-const users = {}
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "nolanglengendron@gmail.com",
+    password: "sfsfsfs"
+  }
+}
 
 // store (key)shortURL and (Value)longURL
 const urlDatabase = {
@@ -70,16 +76,23 @@ app.post("/register", (req, res, callback) => {
   const randomID = generateRandomString();
   const newUserEmail = req.body.email;
   const newUserPassword = req.body.password;
-  users[randomID] = {
-    id: randomID,
-    email: newUserEmail,
-    password: newUserPassword
-  }
-  res.cookie('user', randomID);
-  console.log(users)
-  res.redirect("/urls");
-});
+  const doesEmailExist = emailLookUp(newUserEmail);
+  console.log(doesEmailExist);
 
+  if (!newUserEmail || !newUserPassword) {
+    res.sendStatus(400);
+  } if (doesEmailExist) {
+    res.sendStatus(400);
+    } else {
+      users[randomID] = {
+        id: randomID,
+        email: newUserEmail,
+        password: newUserPassword
+      }
+      res.cookie('user', randomID);
+      res.redirect("/urls");
+      }
+});
 
 // Adds a new URL to urlDatabase
 app.post("/urls", (req, res, callback) => {
@@ -105,7 +118,6 @@ app.post("/login", (req, res) => {
 // On-click of logout button clears cookie
 app.post("/logout", (req, res) => {
   const username = req.body.username;
-  console.log(username)
   res.clearCookie('username', username)
   res.redirect("/urls");
 })
@@ -144,6 +156,19 @@ function generateRandomString() {
   }
   return output;
 }
+
+function emailLookUp(newEmail) {
+  let emailExist = false;
+  for (let key in users) {
+    if (newEmail === users[key]['email']) {
+      return emailExist = true;
+    } else {
+      return emailExist;
+    }
+  }
+}
+
+
 
 
 
