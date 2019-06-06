@@ -16,7 +16,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "nolanglengendron@gmail.com",
-    password: "sfsfsfs"
+    password: "pass"
   }
 }
 
@@ -30,15 +30,22 @@ const urlDatabase = {
 // Displays the registration page
 app.get("/register", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"],
   };
   res.render("registration", templateVars);
 })
 
+//Displays the login page
+app.get("/login", (req, res) => {
+  let templateVars = {
+  };
+  res.render("login", templateVars);
+})
+
 // Browse - Displays all URLs in urlDatabase
 app.get("/urls", (req, res) => {
+  const key = req.cookies["user"];
   let templateVars = {
-    username: req.cookies["username"],
+    user: users[key],
     urls: urlDatabase
   };
   res.render("urls_index", templateVars);
@@ -46,8 +53,9 @@ app.get("/urls", (req, res) => {
 
 // Displays a form to add new URL
 app.get("/urls/new", (req, res) => {
+  const key = req.cookies["user"];
   let templateVars = {
-    username: req.cookies["username"],
+    user: users[key],
     urls: urlDatabase
   };
   res.render("urls_new", templateVars);
@@ -55,9 +63,10 @@ app.get("/urls/new", (req, res) => {
 
 // Displays one URL to page
 app.get("/urls/:shortURL", (req, res) => {
+  let key = req.cookies["user"];
   let shortURL = req.params.shortURL;
   let templateVars = {
-    username: req.cookies["username"],
+    user: users[key],
     shortURL: shortURL,
     longURL: urlDatabase[shortURL]
   };
@@ -77,7 +86,6 @@ app.post("/register", (req, res, callback) => {
   const newUserEmail = req.body.email;
   const newUserPassword = req.body.password;
   const doesEmailExist = emailLookUp(newUserEmail);
-  console.log(doesEmailExist);
 
   if (!newUserEmail || !newUserPassword) {
     res.sendStatus(400);
@@ -94,6 +102,24 @@ app.post("/register", (req, res, callback) => {
       }
 });
 
+// Login
+app.post("/login", (req, res) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  const doesEmailExist = emailLookUp(userEmail);
+  const passwordsMatch = comparePasswords(userPassword);
+
+  if (!doesEmailExist) {
+    res.sendStatus(403);
+  } else if (doesEmailExist && !passwordsMatch) {
+    res.sendStatus(403);
+  } else {
+      const user = getUser(userEmail);
+      res.cookie('user', user['id']);
+      res.redirect("/urls");
+  }
+})
+
 // Adds a new URL to urlDatabase
 app.post("/urls", (req, res, callback) => {
   const randomString = generateRandomString();
@@ -106,19 +132,10 @@ app.post("/urls", (req, res, callback) => {
     }
 });
 
-// Adds cookie to username
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-  if (username) {
-  res.cookie('username', username);
-}
-  res.redirect("/urls");
-})
-
 // On-click of logout button clears cookie
 app.post("/logout", (req, res) => {
-  const username = req.body.username;
-  res.clearCookie('username', username)
+  const key = req.cookies["user"];
+  res.clearCookie('user', 'id');
   res.redirect("/urls");
 })
 
@@ -157,6 +174,14 @@ function generateRandomString() {
   return output;
 }
 
+function getUser(email) {
+  for (let key in users) {
+    if (email === users[key]['email']) {
+      return users[key];
+    }
+  }
+}
+
 function emailLookUp(newEmail) {
   let emailExist = false;
   for (let key in users) {
@@ -167,6 +192,18 @@ function emailLookUp(newEmail) {
     }
   }
 }
+
+function comparePasswords(newPassword) {
+  let passwordsMatch = false;
+  for (let key in users) {
+    if (newPassword === users[key]['password']) {
+      return passwordsMatch = true;
+    } else {
+      return passwordsMatch;
+    }
+  }
+}
+
 
 
 
