@@ -11,11 +11,23 @@ app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
-// storee (key)shortURL and (Value)longURL
+// store User data: email and password
+const users = {}
+
+// store (key)shortURL and (Value)longURL
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+//================================================
+// Displays the registration page
+app.get("/register", (req, res) => {
+  let templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("registration", templateVars);
+})
 
 // Browse - Displays all URLs in urlDatabase
 app.get("/urls", (req, res) => {
@@ -53,6 +65,22 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+// Adds a new user to users object
+app.post("/register", (req, res, callback) => {
+  const randomID = generateRandomString();
+  const newUserEmail = req.body.email;
+  const newUserPassword = req.body.password;
+  users[randomID] = {
+    id: randomID,
+    email: newUserEmail,
+    password: newUserPassword
+  }
+  res.cookie('user', randomID);
+  console.log(users)
+  res.redirect("/urls");
+});
+
+
 // Adds a new URL to urlDatabase
 app.post("/urls", (req, res, callback) => {
   const randomString = generateRandomString();
@@ -62,8 +90,7 @@ app.post("/urls", (req, res, callback) => {
   res.redirect(`/u/${randomString}`);
   } else {
     res.redirect("/urls/new");
-  }
-
+    }
 });
 
 // Adds cookie to username
@@ -117,5 +144,6 @@ function generateRandomString() {
   }
   return output;
 }
+
 
 
