@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const PORT = 8080; // default port 8080
 
@@ -16,41 +15,29 @@ app.use(cookieSession({
 
 app.set("view engine", "ejs");
 
-// store User data: email and password
+// store User data: id, email and password
 const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "nolanglengendron@gmail.com",
     password: "pass"
-  },
-    "RandomID": {
-    id: "RandomID",
-    email: "nolan@gmail.com",
-    password: "password"
   }
 }
 
-// store (key)shortURL and (Value)longURL
+// stores Users short and long URLs
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
     userID: "userRandomID"
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: "userRandomID"
-  },
-    "b2xVgnsd2": {
-    longURL: "http://www.cbc.ca",
-    userID: "RandomID"
-  },
-  "0sm5sgsxK": {
-    longURL: "http://www.tsn.ca",
-    userID: "RandomID"
   }
 };
 
 //================================================
+//                 Routes
+//================================================
+
+//===================GET Routes====================
+
 // Displays the registration page
 app.get("/register", (req, res) => {
   const templateVars = {
@@ -68,7 +55,6 @@ app.get("/login", (req, res) => {
 // Browse - Displays all URLs in urlDatabase
 app.get("/urls", (req, res) => {
   const key = req.session["user"];
-  console.log(key);
   const userUrls = urlsForUser(key);
 
   const templateVars = {
@@ -111,6 +97,8 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+//=================POST Routes==========================
+
 // Registration
 app.post("/register", (req, res, callback) => {
   const randomID = generateRandomString();
@@ -129,7 +117,6 @@ app.post("/register", (req, res, callback) => {
         email: newUserEmail,
         password: hashedPassword
       }
-      //res.cookie('user', randomID);
       req.session.user = randomID;
       res.redirect("/urls");
       }
@@ -150,9 +137,26 @@ app.post("/login", (req, res) => {
     res.sendStatus(403);
   } else {
       const user = getUser(userEmail);
-      //res.cookie('user', user['id']);
       req.session.user = user['id'];
       res.redirect("/urls");
+  }
+})
+
+// Edit longURL
+app.post("/urls/:shortURL", (req, res) => {
+  const userLoggedIn = req.session['user'];
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  if (!userLoggedIn) {
+    res.redirect("/urls");
+    } else {
+    if (longURL) {
+      urlDatabase[shortURL] = {
+      longURL: longURL,
+      userID: userLoggedIn
+      }
+    }
+    res.redirect("/urls");
   }
 })
 
@@ -167,35 +171,19 @@ app.post("/urls", (req, res, callback) => {
       userID: userID
     }
     res.redirect(`/u/${newShortUrl}`);
-  } else {
-     res.redirect("/urls/new");
-  }
+    } else {
+        res.redirect("/urls/new");
+      }
 });
 
 // On-click of logout button clears cookie
 app.post("/logout", (req, res) => {
   const key = req.session["user"];
   req.session = null;
-  //res.clearCookie('user', 'id');
   res.redirect("/urls");
 })
 
-// Edit/Update URL
-app.post("/urls/:shortURL", (req, res) => {
-  const userLoggedIn = req.session['user'];
-  const shortURL = req.params.shortURL;
-  const longURL = req.body.longURL;
-  if (!userLoggedIn) {
-    res.redirect("/urls");
-  } else {
-  if (longURL) {
-    urlDatabase[shortURL] = longURL;
-  }
-  res.redirect("/urls");
-}
-;})
-
-// Delete a URL
+// Deletes a URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userLoggedIn = req.session['user'];
   const shortURL = req.params.shortURL;
@@ -211,6 +199,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get('*', (req, res) => {
   res.redirect('/urls');
 })
+
+//==========================================
+//          Helper Functions
+//==========================================
 
 function generateRandomString() {
   let output = '';
@@ -236,17 +228,6 @@ function emailLookUp(newEmail) {
       return emailExist = true;
     } else {
       return emailExist;
-    }
-  }
-}
-
-function comparePasswords(newPassword) {
-  let passwordsMatch = false;
-  for (const key in users) {
-    if (newPassword === users[key]['password']) {
-      return passwordsMatch = true;
-    } else {
-      return passwordsMatch;
     }
   }
 }

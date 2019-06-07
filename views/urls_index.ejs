@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-</head>
-<body style="font-size:20px;">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <title>TinyApp</title>
+  </head>
 
-  <% include ./partials/_header %>
-  <div style="max-width: 90%; margin: auto;">
+  <body style="font-size:20px;">
 
-    <% if (user) { %>
-    <a href="/urls/new">Create New TinyUrl</a>
+    <% include ./partials/_header %>
+    <div style="max-width: 90%; margin: auto;">
 
-    <table style="width: 100%; margin: auto;">
-      <% for(key in urls) {%>
-        <tr>
-          <form method="POST" action="/urls/<%= key %>/delete">
-            <td><strong><%= key %>:</strong></td>
-            <td><%= urls[key]['longURL'] %></td>
-            <td><a href="/urls/<%= key %>">Edit</a></td>
-            <td><button type="submit" value="DESTROY" class="btn btn-secondary">Delete</button></td>
-          </form>
-        <tr>
+      <% if (user) { %>
+      <a href="/urls/new">Create New TinyUrl</a>
+
+      <table style="width: 100%; margin: auto;">
+        <% for(key in urls) {%>
+          <tr>
+            <form method="POST" action="/urls/<%= key %>/delete">
+              <td><strong><%= key %>:</strong></td>
+              <td><%= urls[key]['longURL'] %></td>
+              <td><a href="/urls/<%= key %>">Edit</a></td>
+              <td><button type="submit" value="DESTROY" class="btn btn-secondary">Delete</button></td>
+            </form>
+          <tr>
+        <% } %>
+      </table>
+      <% } else { %>
+      <h1>Please login or register</h1>
       <% } %>
-    </table>
-    <% } else { %>
-    <h1>Please login or register</h1>
-    <% } %>
 
-  </div>
-</body>
+    </div>
+  </body>
 </html>
 
