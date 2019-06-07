@@ -22,8 +22,14 @@ const users = {
 
 // store (key)shortURL and (Value)longURL
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "userRandomID"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "userRandomID"
+  }
 };
 
 //================================================
@@ -44,9 +50,11 @@ app.get("/login", (req, res) => {
 // Browse - Displays all URLs in urlDatabase
 app.get("/urls", (req, res) => {
   const key = req.cookies["user"];
+  const userUrls = urlsForUser(key);
+
   let templateVars = {
     user: users[key],
-    urls: urlDatabase
+    urls: userUrls
   };
   res.render("urls_index", templateVars);
 });
@@ -54,11 +62,15 @@ app.get("/urls", (req, res) => {
 // Displays a form to add new URL
 app.get("/urls/new", (req, res) => {
   const key = req.cookies["user"];
+  if (key) {
   let templateVars = {
     user: users[key],
     urls: urlDatabase
   };
   res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // Displays one URL to page
@@ -123,9 +135,13 @@ app.post("/login", (req, res) => {
 // Adds a new URL to urlDatabase
 app.post("/urls", (req, res, callback) => {
   const randomString = generateRandomString();
+  const userID = req.cookies['user']['id'];
   const newLongURL = req.body.longURL;
   if (newLongURL) {
-  urlDatabase[randomString] = newLongURL;
+  urlDatabase[randomString] = {
+  longURL: newLongURL,
+  userID: userID
+}
   res.redirect(`/u/${randomString}`);
   } else {
     res.redirect("/urls/new");
@@ -161,9 +177,7 @@ app.get('*', (req, res) => {
   res.redirect('/urls');
 })
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
+
 
 function generateRandomString() {
   let output = '';
@@ -204,8 +218,20 @@ function comparePasswords(newPassword) {
   }
 }
 
+function urlsForUser(id) {
+  let userUrl = {};
+  for (const key in urlDatabase) {
+    if (id === urlDatabase[key]['userID']) {
+      userUrl[key] = urlDatabase[key];
+    }
+  }
+  return userUrl;
+}
 
 
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
 
 
