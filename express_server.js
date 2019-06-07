@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const PORT = 8080; // default port 8080
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -105,11 +106,13 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-// Adds a new user to users object
+// Registration
 app.post("/register", (req, res, callback) => {
   const randomID = generateRandomString();
   const newUserEmail = req.body.email;
   const newUserPassword = req.body.password;
+  const hashedPassword = bcrypt.hashSync(newUserPassword, 10);
+  console.log(hashedPassword);
   const doesEmailExist = emailLookUp(newUserEmail);
 
   if (!newUserEmail || !newUserPassword) {
@@ -120,8 +123,9 @@ app.post("/register", (req, res, callback) => {
       users[randomID] = {
         id: randomID,
         email: newUserEmail,
-        password: newUserPassword
+        password: hashedPassword
       }
+      console.log(users)
       res.cookie('user', randomID);
       res.redirect("/urls");
       }
@@ -130,13 +134,17 @@ app.post("/register", (req, res, callback) => {
 // Login
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
+  const user = getUser(userEmail);
+  const hashedPassword = user.password;
   const userPassword = req.body.password;
-  const doesEmailExist = emailLookUp(userEmail);
-  const passwordsMatch = comparePasswords(userPassword);
 
-  if (!doesEmailExist) {
+  const compareHashedPassword = bcrypt.compareSync(userPassword, hashedPassword);
+  console.log(compareHashedPassword);
+  const doesEmailExist = emailLookUp(userEmail);
+
+  if (!compareHashedPassword) {
     res.sendStatus(403);
-  } else if (doesEmailExist && !passwordsMatch) {
+  } else if (doesEmailExist && !compareHashedPassword) {
     res.sendStatus(403);
   } else {
       const user = getUser(userEmail);
