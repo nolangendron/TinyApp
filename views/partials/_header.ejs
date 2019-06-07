@@ -6,21 +6,27 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="header.css">
     <title>TinyApp</title>
   </head>
 
   <body style="font-size:20px;">
-    <header>
-      <nav class="navbar navbar-light bg-success">
-        <a class="navbar-brand" href="/urls">TinyApp</a>
+    <header style="margin-bottom: 20px;">
+      <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="/urls">TinyApp</a>
+          </div>
           <% if (user) { %>
           <form class="form-inline" name="user" action="/logout" method="post" accept-charset="utf-8">
-            <label for="user">Logged In As: <%= user.email %></label>
-            <button type="submit" class="btn btn-secondary">Logout</button>
+            <label style="color: white;" for="user">Logged In As: <%= user.email %></label>
+            <button type="submit" class="btn btn-secondary" style="margin-left: 20px;">Logout</button>
           </form>
           <% } else { %>
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
+            <form class="form-inline">
+              <a class="btn btn-secondary" href="/login">Login</a>
+              <a class="btn btn-secondary" href="/register" style="margin-left: 20px;">Register</a>
+            </form>
           <% } %>
       </nav>
     </header>

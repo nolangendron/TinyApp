@@ -6,6 +6,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+     <link rel="stylesheet" type="text/css" href="partials.css">
     <title>TinyApp</title>
   </head>
 
@@ -15,22 +16,23 @@
     <div style="max-width: 90%; margin: auto;">
 
       <% if (user) { %>
-      <a href="/urls/new">Create New TinyUrl</a>
+      <button type="submit" class="btn btn-primary"><a style="text-decoration: none; color: white;" href="/urls/new">Create New TinyUrl</a></button>
 
-      <table style="width: 100%; margin: auto;">
+      <table style="width: 100%; margin: 20px auto;">
         <% for(key in urls) {%>
           <tr>
             <form method="POST" action="/urls/<%= key %>/delete">
               <td><strong><%= key %>:</strong></td>
-              <td><%= urls[key]['longURL'] %></td>
-              <td><a href="/urls/<%= key %>">Edit</a></td>
+              <td><a href="<%= urls[key]['longURL'] %>"><%= urls[key]['longURL'] %></a></td>
+              <td><button type="button" class="btn btn-secondary"><a style="text-decoration: none; color: white;" href="/urls/<%= key %>">Edit</a></button></td>
               <td><button type="submit" value="DESTROY" class="btn btn-secondary">Delete</button></td>
             </form>
           <tr>
         <% } %>
       </table>
+
       <% } else { %>
-      <h1>Please login or register</h1>
+      <h1 style="text-align: center; margin: 100px;">Please Login or Register</h1>
       <% } %>
 
     </div>
