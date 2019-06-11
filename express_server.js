@@ -15,15 +15,53 @@ app.use(cookieSession({
 
 app.set("view engine", "ejs");
 
+//==========================================
+//          Helper Functions
+//==========================================
+
+function generateRandomString() {
+  let output = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 6; i++) {
+    output += characters.charAt(Math.floor(Math.random() * characters.length))
+  }
+  return output;
+}
+
+function getUser(email) {
+  for (const key in users) {
+    if (email === users[key]['email']) {
+      return users[key];
+    }
+  }
+}
+
+function emailLookUp(newEmail) {
+  let emailExist = false;
+  for (const key in users) {
+    if (newEmail === users[key]['email']) {
+      return emailExist = true;
+    } else {
+        return emailExist;
+      }
+  }
+}
+
+function urlsForUser(id) {
+  let userUrl = {};
+  for (const key in urlDatabase) {
+    if (id === urlDatabase[key]['userID']) {
+      userUrl[key] = urlDatabase[key];
+    }
+  }
+  return userUrl;
+}
+
 // store User's data: id, email and password
-const users = {}
+const users = {};
 
 // stores User's short and long URLs
 const urlDatabase = {};
-
-//================================================
-//                 Routes
-//================================================
 
 //===================GET Routes====================
 
@@ -81,6 +119,12 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const key = req.session["user"];
   const shortURL = req.params.shortURL;
+  if (!key) {
+    res.redirect("/urls/")
+  }
+  if (!urlDatabase[shortURL]) {
+    res.status(400).send("<h3>shortURL not found. Please enter a valid shortURL.</h3>")
+  }
   const templateVars = {
     user: users[key],
     shortURL: shortURL,
@@ -105,11 +149,10 @@ app.post("/register", (req, res, callback) => {
   const newUserPassword = req.body.password;
   const hashedPassword = bcrypt.hashSync(newUserPassword, 10);
   const doesEmailExist = emailLookUp(newUserEmail);
-  console.log(doesEmailExist)
   if (!newUserEmail || !newUserPassword) {
-    res.sendStatus(400);
+    res.status(400).send("<h3>Please enter a valid email address and password.</h3>");
   } else if (doesEmailExist) {
-    res.sendStatus(400);
+    res.status(400).send("<h3>Email address already exist. Please login or enter a different email address.</h3>");
     } else {
       users[randomID] = {
         id: randomID,
@@ -124,24 +167,30 @@ app.post("/register", (req, res, callback) => {
 // Login page
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
-  const user = getUser(userEmail);
-  const hashedPassword = user.password;
   const userPassword = req.body.password;
-  const compareHashedPassword = bcrypt.compareSync(userPassword, hashedPassword);
-  const doesEmailExist = emailLookUp(userEmail);
+  const user = getUser(userEmail);
 
   if (!userEmail || !userPassword) {
-    res.redirect("/login");
-    } else if (!compareHashedPassword) {
-    res.sendStatus(403);
-    } else if (doesEmailExist && !compareHashedPassword) {
-    res.sendStatus(403);
-    } else {
+    res.status(403).send("<h3>Please enter a valid email and password.</h3>");
+  }
+
+  if(user){
+
+    const hashedPassword = user.password;
+    const compareHashedPassword = bcrypt.compareSync(userPassword, hashedPassword);
+
+    if(compareHashedPassword){
       const user = getUser(userEmail);
       req.session.user = user['id'];
       res.redirect("/urls");
-      }
-})
+    } else {
+      res.status(403).send("<h3>Username or password does not match</h3>");
+    }
+
+  } else {
+    res.status(403).send("<h3>Sorry! Username not found</h3>");
+  }
+});
 
 // Edit longURL
 app.post("/urls/:shortURL", (req, res) => {
@@ -200,52 +249,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get('*', (req, res) => {
   res.redirect('/urls');
 })
-
-//==========================================
-//          Helper Functions
-//==========================================
-
-// Generates a random string to represent the ShortURL when a new one is created
-function generateRandomString() {
-  let output = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 6; i++) {
-    output += characters.charAt(Math.floor(Math.random() * characters.length))
-  }
-  return output;
-}
-
-// gets a user from the users DB using the userEmail to lookup specific user
-function getUser(email) {
-  for (const key in users) {
-    if (email === users[key]['email']) {
-      return users[key];
-    }
-  }
-}
-
-// usese a newUserEmail to look in users DB to check is newEmail already exist
-function emailLookUp(newEmail) {
-  let emailExist = false;
-  for (const key in users) {
-    if (newEmail === users[key]['email']) {
-      return emailExist = true;
-    } else {
-        return emailExist;
-      }
-  }
-}
-
-// Gets all the URLs unique to a specific user id
-function urlsForUser(id) {
-  let userUrl = {};
-  for (const key in urlDatabase) {
-    if (id === urlDatabase[key]['userID']) {
-      userUrl[key] = urlDatabase[key];
-    }
-  }
-  return userUrl;
-}
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

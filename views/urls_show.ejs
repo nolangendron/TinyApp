@@ -11,6 +11,8 @@
 
   <body style="font-size:20px;">
     <% include ./partials/_header %>
+
+    <% if (user) { %>
     <button type="submit" class="btn btn-primary" style="margin: 20px;"><a style="text-decoration: none; color: white;" href="/urls/new">Create New TinyUrl</a></button>
     <h3 style="margin-left: 20px;">Short URL: <%= shortURL %></h3>
     <form class="form-inline" method="POST" action="/urls/<%= shortURL %>" style="margin-left: 20px;">
@@ -18,5 +20,10 @@
       <input class="form-control" type="text" name="longURL" value="<%= longURL %>" style="width: 300px; margin: 1em;">
       <button type="submit" class="btn btn-secondary">Update</button>
     </form>
+
+    <% } else { %>
+      <h1 style="text-align: center; margin: 100px;">Please Login or Register</h1>
+    <% } %>
+
   </body>
 </html>
